@@ -1,13 +1,12 @@
 from flask import Flask, jsonify, request
 import requests
 import json
+import os
 
 app = Flask(__name__)
 
-# Your Roblox Group ID
 GROUP_ID = 11617706  # Replace this with your actual group ID
 
-# Function to get the rank of the user in the group
 def get_user_groups(user_id):
     url = f"https://groups.roblox.com/v1/users/{user_id}/groups/roles"
     response = requests.get(url)
@@ -35,7 +34,6 @@ def get_user_groups_route():
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
     
-    # Get user groups data
     groups = get_user_groups(user_id)
     
     if "error" in groups:
@@ -43,5 +41,10 @@ def get_user_groups_route():
     
     return jsonify({"groups": groups})
 
+# Keep-alive endpoint to ensure the server stays active
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"status": "OK"}), 200
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
